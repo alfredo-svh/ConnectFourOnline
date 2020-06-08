@@ -1,4 +1,4 @@
-﻿// ConnectFourOnline.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// ConnectFourOnline.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 /*
@@ -26,13 +26,13 @@
 	This program comes with ABSOLUTELY NO WARRANTY.
 	This is free software, and you are welcome to redistribute it
 	under certain conditions; See license for details.
-	Original works located at:
+	Original work located at:
 	https://github.com/alfredo-svh/ConnectFourOnline
 	GNU GPLv3
 	https://github.com/alfredo-svh/ConnectFourOnline/blob/master/LICENSE.md
 	From alfredo-svh
 	~~~~~~~~~~~~~~~
-	Hello! This is a free software, including its entire code. You can take it, use it,
+	Hi there! This is program and its entire code is free software. You can take it, use it,
 	distribute it, change it. 
 	You acknowledge	that I am not responsible for anything bad that happens as a result of
 	your actions. However this code is protected by GNU GPLv3, see the license in the
@@ -47,6 +47,17 @@
 	Controls are 1,2,3,4,5,6,7 to select the column where you wish to place your token.
 	You can press the Esc key to stop the game and end the connection at any time.
 	To win, you need to align 4 tokens horizontally, vertically or diagonally.
+	DO NOT try to resize the window. It will bring chaos. (Perhaps you can fix this?)
+
+	To compile, create a new Windows Console application on Visual Studio.
+	Make sure to define WIN32_LEAN_AND_MEAN inside pch.h
+
+
+	Future Modifications
+	~~~~~~~~~~~~~~~~~~~~
+	1) Refactor some of the code
+	2) Making screen resize work
+	3) Introduce "play again?" loop
 
 	Author
 	~~~~~~
@@ -451,8 +462,7 @@ void playGame() {
 
 }
 
-//TODO: refactor code: ex: initialization of socket to the top
-//							(since both server and client do it)
+
 int main() {
 	cout << "Connect Four Online Copyright(C) 2020 Alfredo Sepulveda Van Hoorde" << endl;
 	cout << "This program comes with ABSOLUTELY NO WARRANTY" << endl;
@@ -461,12 +471,13 @@ int main() {
 
 
 	string input = "";
-	cout << "WELCOME TO CONNECT FOUR ONLINE!" << endl<<endl;
+	cout << "\t\t\tWELCOME TO CONNECT FOUR ONLINE!" << endl<<endl;
 
 	cout << "To become a server, press 1 (and Enter)" << endl;
 	cout << "To join a friend, press 2 (and Enter)" << endl;
 
 	cin >> input;
+	cout << endl;
 
 	if (input == "1") {
 		bServer = true;
@@ -483,7 +494,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Socket initialized" << std::endl;
+		//std::cout << "Socket initialized" << std::endl;
 
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_INET;
@@ -500,7 +511,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Server address and port resolved" << std::endl;
+		//std::cout << "Server address and port resolved" << std::endl;
 
 		// Create a SOCKET for connecting to server
 		ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
@@ -512,7 +523,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Listen Socket created" << std::endl;
+		//std::cout << "Listen Socket created" << std::endl;
 
 		// Setup the TCP listening socket
 		iResult = ::bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
@@ -525,7 +536,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Listen Socket setup successful" << std::endl;
+		//std::cout << "Listen Socket setup successful" << std::endl;
 
 		freeaddrinfo(result);
 
@@ -538,7 +549,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Socket listening" << std::endl;
+		//std::cout << "Socket listening" << std::endl;
 
 		ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 		pAdapterInfo = (IP_ADAPTER_INFO *)MALLOC(sizeof(IP_ADAPTER_INFO));
@@ -570,13 +581,15 @@ int main() {
 
 				pAdapter = pAdapter->Next;
 			}
+			std::cout << "Share it with your friend!" << std::endl<< std::endl;
 		}
 		else {
 			printf("GetAdaptersInfo failed with error: %d\n", dwRetVal);
-
 		}
 		if (pAdapterInfo)
 			FREE(pAdapterInfo);
+
+		cout << "Waiting for your friend..." << endl;
 
 		// Accept a client socket
 		ClientSocket = accept(ListenSocket, NULL, NULL);
@@ -588,7 +601,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Client accepted" << std::endl;
+		//std::cout << "Client accepted" << std::endl;
 
 		// No longer need server socket
 		closesocket(ListenSocket);
@@ -607,14 +620,14 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Socket initialized" << std::endl;
+		//std::cout << "Socket initialized" << std::endl;
 
 		ZeroMemory(&hints, sizeof(hints));
 		hints.ai_family = AF_UNSPEC;
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_protocol = IPPROTO_TCP;
 
-		std::cout << "Type the IP address of your friend" << std::endl;
+		std::cout << "Enter the IP address of your friend:" << std::endl;
 		std::cin >> hostName;
 		const char *hostAddr = hostName.c_str();
 
@@ -626,7 +639,7 @@ int main() {
 			system("pause");
 			return 1;
 		}
-		std::cout << "Server address and port resolved" << std::endl;
+		//std::cout << "Server address and port resolved" << std::endl;
 
 		// Attempt to connect to an address until one succeeds
 		for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
@@ -641,7 +654,7 @@ int main() {
 				return 1;
 			}
 
-			std::cout << "Trying to connect to server" << std::endl;
+			std::cout << "Trying to connect to your friend..." << std::endl;
 
 			// Connect to server.
 			iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -662,7 +675,7 @@ int main() {
 			return 1;
 		}
 
-		std::cout << "Connected to server" << std::endl;
+		//std::cout << "Connected to server" << std::endl;
 	}
 	else {
 		return 1;
@@ -682,7 +695,7 @@ int main() {
 		return 1;
 	}
 
-	std::cout << "Connection was shut" << std::endl;
+	//std::cout << "Connection was shut" << std::endl;
 
 	// cleanup
 	closesocket(ConnectSocket);
