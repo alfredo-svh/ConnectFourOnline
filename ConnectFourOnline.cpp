@@ -369,7 +369,7 @@ void playGame() {
 				//OPPONENT'S TURN
 				iResult = recv((bServer)? ClientSocket : ConnectSocket, recvbuf, recvbuflen, 0);
 				if (iResult > 0) {
-					nColumn = stoi("recvbuf");
+					nColumn = stoi(recvbuf);
 					if (insertToken(nColumn)) {
 						break;
 					}
